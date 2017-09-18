@@ -13,3 +13,8 @@ sudo sqlite3 /etc/synoappprivilege.db
 1,100,SYNO.Rsync,,,0.0.0.0,0000:0000:0000:0000:0000:FFFF:0000:0000^M
 
 Il faut mettre les IP avant les virgules pour le groupe 100
+
+UPDATE AppPrivRule SET AllowIP = '0.0.0.0' WHERE ID = 100;
+UPDATE AppPrivRule SET AllowIPStd = '0000:0000:0000:0000:0000:FFFF:0000:0000' WHERE ID = 100;
+UPDATE AppPrivRule SET DenyIP = '' WHERE ID = 100;
+UPDATE AppPrivRule SET DenyIPStd = '' WHERE ID = 100;
