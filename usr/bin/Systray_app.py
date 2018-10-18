@@ -8,35 +8,50 @@ Test de script python en systray
 
 from pystray import MenuItem as item
 import pystray
-import tkinter as tk
+import time
+import os
+import webbrowser
 from PIL import Image
+import threading
 
+class App():
+    def __init__(self, *args):
+        self.image = Image.open("python_icon.png")
+        self.menu = pystray.Menu(item('Relancer script', self.Restart), item('Arrêter script', self.Stop), item('Configurer', self.Config), item('Quitter', self.Quit, default=True))
+        self.icon = pystray.Icon("SFTP Uploader", self.image, 'SFTP Uploader', self.menu)
 
+    def Code(self, stop_event, data):
+        while not stop_event.wait(0.5):
+            print('working with {}'.format(data))
+        print('Thread stopped')
 
-def Config():
-    pass
+    def Start(self, *args):
+        self.sentinel = threading.Event()
+        self.t = threading.Thread(target=self.Code, args=(self.sentinel, "data"))
+        self.t.start()
 
-def on_exit(about_window):
-    about_window.destroy()
+    def Stop(self, *args):
+        self.sentinel.set()
+        self.t.join()
 
-def About():
-    # Opening popup window
-    print("User opened 'about' window")
-    about_window = tk.Tk()
-    about_window.resizable(False, False)
-    about_window.attributes("-topmost", True)
-    about_window.title("A propos de SFTP Uploader")
-    about_window.protocol("WM_DELETE_WINDOW", on_exit)
-    about_window.mainloop()
+    def Restart(self, *args):
+        self.Stop()
+        self.Start()
+        
 
-    
+    def Config(self, *args):
+        webbrowser.open("config.ini")
+        print("User opened 'about' window")
+        return
 
-def Quit():
-    icon.stop()
+    def Quit(self, *args):
+        self.Stop()
+        self.icon.stop()
 
-image = Image.open("python_icon.png")
-menu = pystray.Menu(item('Configurer', Config), item('A propos', About), item('Quitter', Quit, default=True))
-icon = pystray.Icon("SFTP Uploader", image, 'SFTP Uploader', menu)
+    def RunTray(self, *args):
+        self.Start()
+        self.icon.run()
 
 if __name__ == '__main__':
-    icon.run()
+    a = App()
+    a.RunTray()
